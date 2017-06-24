@@ -1,0 +1,139 @@
+package de.canitzp.creativebottom;
+
+import de.ellpeck.rockbottom.api.IApiHandler;
+import de.ellpeck.rockbottom.api.IGameInstance;
+import de.ellpeck.rockbottom.api.RockBottomAPI;
+import de.ellpeck.rockbottom.api.assets.IAssetManager;
+import de.ellpeck.rockbottom.api.data.set.DataSet;
+import de.ellpeck.rockbottom.api.entity.Entity;
+import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
+import de.ellpeck.rockbottom.api.event.EventResult;
+import de.ellpeck.rockbottom.api.event.IEventHandler;
+import de.ellpeck.rockbottom.api.event.impl.*;
+import de.ellpeck.rockbottom.api.mod.IMod;
+import org.lwjgl.input.Keyboard;
+import org.newdawn.slick.Input;
+
+/**
+ * @author canitzp
+ */
+public class CreativeBottom implements IMod {
+    @Override
+    public String getDisplayName() {
+        return "Creative Bottom";
+    }
+
+    @Override
+    public String getId() {
+        return "creativebottom";
+    }
+
+    @Override
+    public String getVersion() {
+        return "a.1.0";
+    }
+
+    @Override
+    public String getResourceLocation() {
+        return null;
+    }
+
+    @Override
+    public String getDescription() {
+        return "This mod should provide a simple creative game mode, a bit like the minecraft one for Rock Bottom";
+    }
+
+    @Override
+    public void init(IGameInstance game, IAssetManager assetManager, IApiHandler apiHandler, IEventHandler eventHandler) {
+        eventHandler.registerListener(EntityTickEvent.class, (result, event) -> {
+            Entity entity = event.entity;
+            if (entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer)entity)) {
+                Input input = game.getContainer().getInput();
+                DataSet data;
+                if (input.isKeyPressed(Keyboard.KEY_C)) {
+                    boolean before = false;
+                    if (entity.getAdditionalData() != null) {
+                        data = entity.getAdditionalData();
+                        before = data.getBoolean("is_creative");
+                    } else {
+                        data = new DataSet();
+                    }
+
+                    data.addBoolean("is_creative", !before);
+                    entity.fallAmount = 0;
+                    data.addBoolean("is_flying", false);
+                    entity.setAdditionalData(data);
+                }
+
+                data = entity.getAdditionalData();
+                if (entity.getAdditionalData() != null && data.getBoolean("is_creative")) {
+                    if (input.isKeyPressed(Keyboard.KEY_LMENU)) {
+                        data.addBoolean("is_flying", !data.getBoolean("is_flying"));
+                        entity.setAdditionalData(data);
+                    }
+
+                    if (data.getBoolean("is_flying")) {
+                        ((AbstractEntityPlayer)entity).motionY = 0.025D;
+                        if (input.isKeyDown(Keyboard.KEY_W)) {
+                            entity.motionY += !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
+                        } else if (input.isKeyDown(Keyboard.KEY_S)) {
+                            entity.motionY -= !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
+                        } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                            if (input.isKeyDown(Keyboard.KEY_A)) {
+                                ((AbstractEntityPlayer)entity).move(0);
+                            } else if (input.isKeyDown(Keyboard.KEY_D)) {
+                                ((AbstractEntityPlayer)entity).move(1);
+                            }
+                        }
+                    }
+                }
+                return EventResult.MODIFIED;
+            } else {
+                return EventResult.DEFAULT;
+            }
+        });
+        eventHandler.registerListener(EntityDamageEvent.class, (result, event) -> event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer)event.entity) && event.entity.getAdditionalData() != null && event.entity.getAdditionalData().getBoolean("is_creative") ? EventResult.CANCELLED : EventResult.DEFAULT);
+        eventHandler.registerListener(WorldRenderEvent.class, (result, event) -> {
+            if (event.world != null && RockBottomAPI.getNet().isThePlayer(event.player)) {
+                DataSet data = event.player.getAdditionalData();
+                if (data != null && data.getBoolean("is_creative")) {
+                    event.assetManager.getFont().drawString(0.0F, 0.0F, String.format("Creative mode: ON  Flying: %s", data.getBoolean("is_flying") ? "ON" : "OFF"), 0.0175F);
+                }
+            }
+            return EventResult.DEFAULT;
+        });
+        eventHandler.registerListener(ComponentRenderEvent.class, (result, event) -> {
+            if (event.gui == null && event.id == 8) {
+                DataSet data = RockBottomAPI.getGame().getPlayer().getAdditionalData();
+                if (data != null && data.getBoolean("is_creative")) {
+                    return EventResult.CANCELLED;
+                }
+            }
+            return EventResult.DEFAULT;
+        });
+        eventHandler.registerListener(GuiOpenEvent.class, (result, event) -> {
+            if (event.gui != null && event.gui.getClass().getName().equals("de.ellpeck.rockbottom.gui.GuiInventory")) {
+                AbstractEntityPlayer player = RockBottomAPI.getGame().getPlayer();
+                DataSet data = player.getAdditionalData();
+                if (data != null && data.getBoolean("is_creative")) {
+                    RockBottomAPI.getGame().getGuiManager().openGui(new GuiCreative(RockBottomAPI.getGame().getPlayer()));
+                    return EventResult.CANCELLED;
+                }
+            }
+
+            return EventResult.DEFAULT;
+        });
+        eventHandler.registerListener(ContainerOpenEvent.class, (result, event) -> {
+            if (event.container != null && event.container.getClass().getName().equals("de.ellpeck.rockbottom.gui.container.ContainerInventory")) {
+                AbstractEntityPlayer player = RockBottomAPI.getGame().getPlayer();
+                DataSet data = player.getAdditionalData();
+                if (data != null && data.getBoolean("is_creative")) {
+                    player.openContainer(new ContainerCreative(player));
+                    return EventResult.CANCELLED;
+                }
+            }
+
+            return EventResult.DEFAULT;
+        });
+    }
+}
