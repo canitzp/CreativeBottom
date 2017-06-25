@@ -47,7 +47,7 @@ public class CreativeBottom implements IMod {
     public void init(IGameInstance game, IAssetManager assetManager, IApiHandler apiHandler, IEventHandler eventHandler) {
         eventHandler.registerListener(EntityTickEvent.class, (result, event) -> {
             Entity entity = event.entity;
-            if (entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer)entity)) {
+            if (entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)) {
                 Input input = game.getContainer().getInput();
                 DataSet data;
                 if (input.isKeyPressed(Keyboard.KEY_C)) {
@@ -73,16 +73,16 @@ public class CreativeBottom implements IMod {
                     }
 
                     if (data.getBoolean("is_flying")) {
-                        ((AbstractEntityPlayer)entity).motionY = 0.025D;
+                        ((AbstractEntityPlayer) entity).motionY = 0.025D;
                         if (input.isKeyDown(Keyboard.KEY_W)) {
                             entity.motionY += !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
                         } else if (input.isKeyDown(Keyboard.KEY_S)) {
                             entity.motionY -= !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
                         } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL)) {
                             if (input.isKeyDown(Keyboard.KEY_A)) {
-                                ((AbstractEntityPlayer)entity).move(0);
+                                ((AbstractEntityPlayer) entity).move(0);
                             } else if (input.isKeyDown(Keyboard.KEY_D)) {
-                                ((AbstractEntityPlayer)entity).move(1);
+                                ((AbstractEntityPlayer) entity).move(1);
                             }
                         }
                     }
@@ -92,7 +92,7 @@ public class CreativeBottom implements IMod {
                 return EventResult.DEFAULT;
             }
         });
-        eventHandler.registerListener(EntityDamageEvent.class, (result, event) -> event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer)event.entity) && event.entity.getAdditionalData() != null && event.entity.getAdditionalData().getBoolean("is_creative") ? EventResult.CANCELLED : EventResult.DEFAULT);
+        eventHandler.registerListener(EntityDamageEvent.class, (result, event) -> event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) event.entity) && event.entity.getAdditionalData() != null && event.entity.getAdditionalData().getBoolean("is_creative") ? EventResult.CANCELLED : EventResult.DEFAULT);
         eventHandler.registerListener(WorldRenderEvent.class, (result, event) -> {
             if (event.world != null && RockBottomAPI.getNet().isThePlayer(event.player)) {
                 DataSet data = event.player.getAdditionalData();
