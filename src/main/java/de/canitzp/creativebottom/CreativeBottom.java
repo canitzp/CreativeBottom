@@ -9,6 +9,7 @@ import de.ellpeck.rockbottom.api.entity.Entity;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
 import de.ellpeck.rockbottom.api.event.EventResult;
 import de.ellpeck.rockbottom.api.event.IEventHandler;
+import de.ellpeck.rockbottom.api.event.IEventListener;
 import de.ellpeck.rockbottom.api.event.impl.*;
 import de.ellpeck.rockbottom.api.mod.IMod;
 import org.lwjgl.input.Keyboard;
@@ -18,6 +19,7 @@ import org.newdawn.slick.Input;
  * @author canitzp
  */
 public class CreativeBottom implements IMod {
+
     @Override
     public String getDisplayName() {
         return "Creative Bottom";
@@ -44,47 +46,54 @@ public class CreativeBottom implements IMod {
     }
 
     @Override
-    public void init(IGameInstance game, IAssetManager assetManager, IApiHandler apiHandler, IEventHandler eventHandler) {
+    public void init(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
         eventHandler.registerListener(EntityTickEvent.class, (result, event) -> {
             Entity entity = event.entity;
-            if (entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)) {
-                Input input = game.getContainer().getInput();
-                DataSet data;
-                if (input.isKeyPressed(Keyboard.KEY_C)) {
-                    boolean before = false;
-                    if (entity.getAdditionalData() != null) {
-                        data = entity.getAdditionalData();
-                        before = data.getBoolean("is_creative");
-                    } else {
-                        data = new DataSet();
-                    }
+            if (entity instanceof AbstractEntityPlayer) {
+                if(RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)){
+                    Input input = RockBottomAPI.getGame().getContainer().getInput();
+                    DataSet data;
+                    if (input.isKeyPressed(Keyboard.KEY_C)) {
+                        boolean before = false;
+                        if (entity.getAdditionalData() != null) {
+                            data = entity.getAdditionalData();
+                            before = data.getBoolean("is_creative");
+                        } else {
+                            data = new DataSet();
+                        }
 
-                    data.addBoolean("is_creative", !before);
-                    entity.fallAmount = 0;
-                    data.addBoolean("is_flying", false);
-                    entity.setAdditionalData(data);
-                }
-
-                data = entity.getAdditionalData();
-                if (entity.getAdditionalData() != null && data.getBoolean("is_creative")) {
-                    if (input.isKeyPressed(Keyboard.KEY_LMENU)) {
-                        data.addBoolean("is_flying", !data.getBoolean("is_flying"));
+                        data.addBoolean("is_creative", !before);
+                        entity.fallAmount = 0;
+                        data.addBoolean("is_flying", false);
                         entity.setAdditionalData(data);
                     }
 
-                    if (data.getBoolean("is_flying")) {
-                        ((AbstractEntityPlayer) entity).motionY = 0.025D;
-                        if (input.isKeyDown(Keyboard.KEY_W)) {
-                            entity.motionY += !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
-                        } else if (input.isKeyDown(Keyboard.KEY_S)) {
-                            entity.motionY -= !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
-                        } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL)) {
-                            if (input.isKeyDown(Keyboard.KEY_A)) {
-                                ((AbstractEntityPlayer) entity).move(0);
-                            } else if (input.isKeyDown(Keyboard.KEY_D)) {
-                                ((AbstractEntityPlayer) entity).move(1);
+                    data = entity.getAdditionalData();
+                    if (entity.getAdditionalData() != null && data.getBoolean("is_creative")) {
+                        if (input.isKeyPressed(Keyboard.KEY_LMENU)) {
+                            data.addBoolean("is_flying", !data.getBoolean("is_flying"));
+                            entity.setAdditionalData(data);
+                        }
+
+                        if (data.getBoolean("is_flying")) {
+                            ((AbstractEntityPlayer) entity).motionY = 0.025D;
+                            if (input.isKeyDown(Keyboard.KEY_W)) {
+                                entity.motionY += !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
+                            } else if (input.isKeyDown(Keyboard.KEY_S)) {
+                                entity.motionY -= !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
+                            } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                                if (input.isKeyDown(Keyboard.KEY_A)) {
+                                    ((AbstractEntityPlayer) entity).move(0);
+                                } else if (input.isKeyDown(Keyboard.KEY_D)) {
+                                    ((AbstractEntityPlayer) entity).move(1);
+                                }
                             }
                         }
+                    }
+                } else {
+                    DataSet data = entity.getAdditionalData();
+                    if(data.getBoolean("is_creative")){
+                        entity.fallAmount = 0;
                     }
                 }
                 return EventResult.MODIFIED;
@@ -133,6 +142,15 @@ public class CreativeBottom implements IMod {
                 }
             }
 
+            return EventResult.DEFAULT;
+        });
+        eventHandler.registerListener(EntityDeathEvent.class, (result, event) -> {
+            if(event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) event.entity)){
+                DataSet data = event.entity.getAdditionalData();
+                if(data.getBoolean("is_creative")){
+                    return EventResult.CANCELLED;
+                }
+            }
             return EventResult.DEFAULT;
         });
     }
