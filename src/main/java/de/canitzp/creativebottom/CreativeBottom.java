@@ -1,9 +1,12 @@
 package de.canitzp.creativebottom;
 
+import de.ellpeck.rockbottom.api.GameContent;
 import de.ellpeck.rockbottom.api.IApiHandler;
 import de.ellpeck.rockbottom.api.IGameInstance;
 import de.ellpeck.rockbottom.api.RockBottomAPI;
 import de.ellpeck.rockbottom.api.assets.IAssetManager;
+import de.ellpeck.rockbottom.api.assets.font.Font;
+import de.ellpeck.rockbottom.api.assets.font.FormattingCode;
 import de.ellpeck.rockbottom.api.data.set.DataSet;
 import de.ellpeck.rockbottom.api.entity.Entity;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
@@ -12,6 +15,7 @@ import de.ellpeck.rockbottom.api.event.IEventHandler;
 import de.ellpeck.rockbottom.api.event.IEventListener;
 import de.ellpeck.rockbottom.api.event.impl.*;
 import de.ellpeck.rockbottom.api.mod.IMod;
+import de.ellpeck.rockbottom.api.world.IWorld;
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Input;
 
@@ -32,7 +36,7 @@ public class CreativeBottom implements IMod {
 
     @Override
     public String getVersion() {
-        return "a.1.0";
+        return "a.4.0";
     }
 
     @Override
@@ -51,7 +55,7 @@ public class CreativeBottom implements IMod {
             Entity entity = event.entity;
             if (entity instanceof AbstractEntityPlayer) {
                 if(RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)){
-                    Input input = RockBottomAPI.getGame().getContainer().getInput();
+                    Input input = RockBottomAPI.getGame().getInput();
                     DataSet data;
                     if (input.isKeyPressed(Keyboard.KEY_C)) {
                         boolean before = false;
@@ -73,6 +77,9 @@ public class CreativeBottom implements IMod {
                         if (input.isKeyPressed(Keyboard.KEY_LMENU)) {
                             data.addBoolean("is_flying", !data.getBoolean("is_flying"));
                             entity.setAdditionalData(data);
+                        } else if(input.isKeyPressed(Keyboard.KEY_T)){
+                            data.addBoolean("pass_trough_world", !data.getBoolean("pass_trough_world"));
+                            entity.setAdditionalData(data);
                         }
 
                         if (data.getBoolean("is_flying")) {
@@ -92,7 +99,7 @@ public class CreativeBottom implements IMod {
                     }
                 } else {
                     DataSet data = entity.getAdditionalData();
-                    if(data.getBoolean("is_creative")){
+                    if(data != null && data.getBoolean("is_creative")){
                         entity.fallAmount = 0;
                     }
                 }
@@ -106,7 +113,10 @@ public class CreativeBottom implements IMod {
             if (event.world != null && RockBottomAPI.getNet().isThePlayer(event.player)) {
                 DataSet data = event.player.getAdditionalData();
                 if (data != null && data.getBoolean("is_creative")) {
-                    event.assetManager.getFont().drawString(0.0F, 0.0F, String.format("Creative mode: ON  Flying: %s", data.getBoolean("is_flying") ? "ON" : "OFF"), 0.0175F);
+                    Font font = event.assetManager.getFont();
+                    font.drawString(0.0F, 0.0F, FormattingCode.ORANGE.toString() + "Creative mode (" + getVersion() + ")", 0.0175F);
+                    font.drawString(0.0F, 0.4F, String.format(" Flying: %s", data.getBoolean("is_flying") ? "ON" : "OFF"), 0.0175F);
+                    font.drawString(0.0F, 0.8F, String.format(" Ghost:  %s", data.getBoolean("pass_trough_world") ? "ON" : "OFF"), 0.0175F);
                 }
             }
             return EventResult.DEFAULT;
@@ -147,8 +157,25 @@ public class CreativeBottom implements IMod {
         eventHandler.registerListener(EntityDeathEvent.class, (result, event) -> {
             if(event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) event.entity)){
                 DataSet data = event.entity.getAdditionalData();
-                if(data.getBoolean("is_creative")){
+                if(data != null && data.getBoolean("is_creative")){
                     return EventResult.CANCELLED;
+                }
+            }
+            return EventResult.DEFAULT;
+        });
+        eventHandler.registerListener(AddBreakProgressEvent.class, (result, event) -> {
+            if(RockBottomAPI.getNet().isThePlayer(event.player)){
+                event.progressAdded = 1;
+                return EventResult.MODIFIED;
+            }
+            return EventResult.DEFAULT;
+        });
+        eventHandler.registerListener(WorldObjectCollisionEvent.class, (result, event) -> {
+            if(event.object instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) event.object)){
+                DataSet data = ((AbstractEntityPlayer) event.object).getAdditionalData();
+                if (data != null && data.getBoolean("is_creative") && data.getBoolean("pass_trough_world")) {
+                    event.boundBoxes.clear();
+                    return EventResult.MODIFIED;
                 }
             }
             return EventResult.DEFAULT;

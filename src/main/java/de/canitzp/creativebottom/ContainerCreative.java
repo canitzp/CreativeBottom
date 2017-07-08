@@ -7,6 +7,7 @@ import de.ellpeck.rockbottom.api.inventory.IInvChangeCallback;
 import de.ellpeck.rockbottom.api.inventory.IInventory;
 import de.ellpeck.rockbottom.api.item.Item;
 import de.ellpeck.rockbottom.api.item.ItemInstance;
+import de.ellpeck.rockbottom.api.item.ItemMeta;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -24,12 +25,24 @@ public class ContainerCreative extends ItemContainer{
     }
 
     public static class CreativeInventory implements IInventory {
-        List<Item> items = new ArrayList<>(RockBottomAPI.ITEM_REGISTRY.getUnmodifiable().values());
+        List<ItemInstance> items = new ArrayList<>();
 
-        public void set(int id, ItemInstance instance) { }
+        public CreativeInventory(){
+            for(Item item : RockBottomAPI.ITEM_REGISTRY.getUnmodifiable().values()){
+                if(item instanceof ItemMeta){
+                    for(int i = 0; i <= item.getHighestPossibleMeta(); i++){
+                        this.items.add(new ItemInstance(item, 1, i));
+                    }
+                } else {
+                    this.items.add(new ItemInstance(item));
+                }
+            }
+        }
+
+        public void set(int id, ItemInstance instance) {}
 
         public ItemInstance add(int id, int amount) {
-            return new ItemInstance(this.items.get(id), amount);
+            return this.items.get(id).setAmount(amount);
         }
 
         public ItemInstance remove(int id, int amount) {
@@ -37,11 +50,11 @@ public class ContainerCreative extends ItemContainer{
         }
 
         public ItemInstance get(int id) {
-            return this.items.size() > id ? new ItemInstance(this.items.get(id), RockBottomAPI.getGame().getContainer().getInput().isKeyDown(Keyboard.KEY_LSHIFT) ? this.items.get(id).getMaxAmount() : 1) : null;
+            return this.items.size() > id ? add(id, RockBottomAPI.getGame().getInput().isKeyDown(Keyboard.KEY_LSHIFT) ? this.items.get(id).getMaxAmount() : 1) : null;
         }
 
         public int getSlotAmount() {
-            return RockBottomAPI.ITEM_REGISTRY.getSize() + 1;
+            return this.items.size() + 1;
         }
 
         public void notifyChange(int slot) {
