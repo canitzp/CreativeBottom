@@ -8,6 +8,7 @@ import de.ellpeck.rockbottom.api.assets.IAssetManager;
 import de.ellpeck.rockbottom.api.assets.font.Font;
 import de.ellpeck.rockbottom.api.assets.font.FormattingCode;
 import de.ellpeck.rockbottom.api.data.set.DataSet;
+import de.ellpeck.rockbottom.api.data.settings.Settings;
 import de.ellpeck.rockbottom.api.entity.Entity;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
 import de.ellpeck.rockbottom.api.event.EventResult;
@@ -18,11 +19,28 @@ import de.ellpeck.rockbottom.api.mod.IMod;
 import de.ellpeck.rockbottom.api.world.IWorld;
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author canitzp
  */
 public class CreativeBottom implements IMod {
+
+    public static final Map<String, Font> FONTS = new HashMap<>();
+
+    public static CreativeSettings settings = new CreativeSettings();
+    public static CreativeBottom INSTANCE;
+
+    public CreativeBottom(){
+        INSTANCE = this;
+    }
 
     @Override
     public String getDisplayName() {
@@ -36,7 +54,7 @@ public class CreativeBottom implements IMod {
 
     @Override
     public String getVersion() {
-        return "a.4.0";
+        return "a.5.0";
     }
 
     @Override
@@ -47,6 +65,27 @@ public class CreativeBottom implements IMod {
     @Override
     public String getDescription() {
         return "This mod should provide a simple creative game mode, a bit like the minecraft one for Rock Bottom";
+    }
+
+    @Override
+    public void preInit(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
+        FONTS.put("Default", game.getAssetManager().getFont());
+        addFont("Old Default", "default");
+        addFont("Vera Mono by Gnome", "VeraMono");
+        addFont("Monospaced Typewriter by Manfred Klein", "MonospaceTypewriter");
+        addFont("Fantasque Sans Mono by belluzj", "FantasqueSansMono");
+
+        game.getDataManager().loadPropSettings(settings);
+        if(settings.stringsToSave.containsKey("font")){
+            String fontName = settings.stringsToSave.get("font");
+            if(FONTS.containsKey(fontName)){
+                try {
+                    FontButton.setFont(game, FONTS.get(fontName));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -131,15 +170,19 @@ public class CreativeBottom implements IMod {
             return EventResult.DEFAULT;
         });
         eventHandler.registerListener(GuiOpenEvent.class, (result, event) -> {
-            if (event.gui != null && event.gui.getClass().getName().equals("de.ellpeck.rockbottom.gui.GuiInventory")) {
-                AbstractEntityPlayer player = RockBottomAPI.getGame().getPlayer();
-                DataSet data = player.getAdditionalData();
-                if (data != null && data.getBoolean("is_creative")) {
-                    RockBottomAPI.getGame().getGuiManager().openGui(new GuiCreative(RockBottomAPI.getGame().getPlayer()));
+            if (event.gui != null) {
+                if(event.gui.getClass().getName().equals("de.ellpeck.rockbottom.gui.GuiInventory")){
+                    AbstractEntityPlayer player = RockBottomAPI.getGame().getPlayer();
+                    DataSet data = player.getAdditionalData();
+                    if (data != null && data.getBoolean("is_creative")) {
+                        RockBottomAPI.getGame().getGuiManager().openGui(new GuiCreative(RockBottomAPI.getGame().getPlayer()));
+                        return EventResult.CANCELLED;
+                    }
+                } else if(event.gui.getClass().getName().equals("de.ellpeck.rockbottom.gui.menu.GuiMainMenu")){
+                    RockBottomAPI.getGame().getGuiManager().openGui(new CustomMainMenu());
                     return EventResult.CANCELLED;
                 }
             }
-
             return EventResult.DEFAULT;
         });
         eventHandler.registerListener(ContainerOpenEvent.class, (result, event) -> {
@@ -165,8 +208,11 @@ public class CreativeBottom implements IMod {
         });
         eventHandler.registerListener(AddBreakProgressEvent.class, (result, event) -> {
             if(RockBottomAPI.getNet().isThePlayer(event.player)){
-                event.progressAdded = 1;
-                return EventResult.MODIFIED;
+                DataSet data = event.player.getAdditionalData();
+                if (data != null && data.getBoolean("is_creative")) {
+                    event.progressAdded = 1;
+                    return EventResult.MODIFIED;
+                }
             }
             return EventResult.DEFAULT;
         });
@@ -180,5 +226,17 @@ public class CreativeBottom implements IMod {
             }
             return EventResult.DEFAULT;
         });
+    }
+
+    private static InputStream loadFont(String name){
+        return RockBottomAPI.getGame().getAssetManager().getResourceStream("/assets/creativebottom/fonts/" + name);
+    }
+
+    private static void addFont(String fontName, String fileName){
+        try {
+            FONTS.put(fontName, Font.fromStream(loadFont(fileName + ".png"), loadFont(fileName + ".info"), fontName));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
