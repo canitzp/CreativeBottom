@@ -165,8 +165,15 @@ public class CreativeBottom implements IMod {
         });
         eventHandler.registerListener(AddBreakProgressEvent.class, (result, event) -> {
             if(RockBottomAPI.getNet().isThePlayer(event.player)){
-                event.progressAdded = 1;
-                return EventResult.MODIFIED;
+                if(event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) event.entity))
+                {
+                    DataSet data = event.entity.getAdditionalData();
+                    if(data != null && data.getBoolean("is_creative"))
+                    {
+                        event.progressAdded = 1;
+                        return EventResult.MODIFIED;
+                    }
+                }
             }
             return EventResult.DEFAULT;
         });
