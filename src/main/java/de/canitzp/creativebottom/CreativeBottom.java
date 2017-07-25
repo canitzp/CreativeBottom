@@ -93,10 +93,11 @@ public class CreativeBottom implements IMod {
         eventHandler.registerListener(EntityTickEvent.class, (result, event) -> {
             Entity entity = event.entity;
             if (entity instanceof AbstractEntityPlayer) {
-                if(RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)){
+                if (RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)) {
+                    boolean valid = RockBottomAPI.getGame().getGuiManager().getGui() == null;
                     Input input = RockBottomAPI.getGame().getInput();
                     DataSet data;
-                    if (input.isKeyPressed(Keyboard.KEY_C)) {
+                    if (input.isKeyPressed(Keyboard.KEY_C) && valid) {
                         boolean before = false;
                         if (entity.getAdditionalData() != null) {
                             data = entity.getAdditionalData();
@@ -114,21 +115,21 @@ public class CreativeBottom implements IMod {
 
                     data = entity.getAdditionalData();
                     if (entity.getAdditionalData() != null && data.getBoolean("is_creative")) {
-                        if (input.isKeyPressed(Keyboard.KEY_LMENU)) {
+                        if (input.isKeyPressed(Keyboard.KEY_LMENU) && valid) {
                             data.addBoolean("is_flying", !data.getBoolean("is_flying"));
                             entity.setAdditionalData(data);
-                        } else if(input.isKeyPressed(Keyboard.KEY_T)){
+                        } else if (input.isKeyPressed(Keyboard.KEY_T) && valid) {
                             data.addBoolean("pass_trough_world", !data.getBoolean("pass_trough_world"));
                             entity.setAdditionalData(data);
                         }
 
                         if (data.getBoolean("is_flying")) {
                             ((AbstractEntityPlayer) entity).motionY = 0.025D;
-                            if (input.isKeyDown(Keyboard.KEY_W)) {
+                            if (input.isKeyDown(Keyboard.KEY_W) && valid) {
                                 entity.motionY += !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
-                            } else if (input.isKeyDown(Keyboard.KEY_S)) {
+                            } else if (input.isKeyDown(Keyboard.KEY_S) && valid) {
                                 entity.motionY -= !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
-                            } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                            } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL) && valid) {
                                 if (input.isKeyDown(Keyboard.KEY_A)) {
                                     ((AbstractEntityPlayer) entity).move(0);
                                 } else if (input.isKeyDown(Keyboard.KEY_D)) {
@@ -136,11 +137,6 @@ public class CreativeBottom implements IMod {
                                 }
                             }
                         }
-                    }
-                } else {
-                    DataSet data = entity.getAdditionalData();
-                    if(data != null && data.getBoolean("is_creative")){
-                        entity.fallAmount = 0;
                     }
                 }
                 return EventResult.MODIFIED;
