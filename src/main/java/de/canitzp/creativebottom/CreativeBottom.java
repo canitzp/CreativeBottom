@@ -73,7 +73,7 @@ public class CreativeBottom implements IMod {
         addFont("Old Default", "default");
         addFont("Vera Mono by Gnome", "VeraMono");
         addFont("Monospaced Typewriter by Manfred Klein", "MonospaceTypewriter");
-        addFont("Fantasque Sans Mono by belluzj", "FantasqueSansMono");
+        addFont("Fantasque Sans Mono by belluzj", "FantasqueSansMono-Regular");
 
         game.getDataManager().loadPropSettings(settings);
         if(settings.stringsToSave.containsKey("font")){
@@ -108,6 +108,7 @@ public class CreativeBottom implements IMod {
                         data.addBoolean("is_creative", !before);
                         entity.fallAmount = 0;
                         data.addBoolean("is_flying", false);
+                        data.addBoolean("pass_trough_world", false);
                         entity.setAdditionalData(data);
                     }
 
