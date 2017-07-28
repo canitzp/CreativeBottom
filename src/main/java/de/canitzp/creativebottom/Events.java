@@ -19,8 +19,6 @@ import org.newdawn.slick.Input;
  */
 public class Events {
 
-    public static final ContainerCreative.CreativeInventory inventory = new ContainerCreative.CreativeInventory();
-
     public static void init(IEventHandler handler){
         handler.registerListener(EntityTickEvent.class, (result, event) -> {
             Entity entity = event.entity;
@@ -122,7 +120,7 @@ public class Events {
                     AbstractEntityPlayer player = RockBottomAPI.getGame().getPlayer();
                     DataSet data = player.getAdditionalData();
                     if (data != null && data.getBoolean("is_creative")) {
-                        GuiCreative creative = new GuiCreative(RockBottomAPI.getGame().getPlayer(), inventory);
+                        GuiCreative creative = new GuiCreative(RockBottomAPI.getGame().getPlayer());
                         RockBottomAPI.getGame().getGuiManager().openGui(creative);
                         return EventResult.CANCELLED;
                     }
@@ -138,7 +136,7 @@ public class Events {
                 AbstractEntityPlayer player = RockBottomAPI.getGame().getPlayer();
                 DataSet data = player.getAdditionalData();
                 if (data != null && data.getBoolean("is_creative")) {
-                    player.openContainer(new ContainerCreative(player, inventory));
+                    player.openContainer(new ContainerCreative(player));
                     return EventResult.CANCELLED;
                 }
             }

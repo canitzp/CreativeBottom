@@ -10,7 +10,7 @@ import de.ellpeck.rockbottom.api.util.reg.IResourceName;
  */
 public class GuiCreative extends GuiContainer {
 
-    public GuiCreative(AbstractEntityPlayer player, ContainerCreative.CreativeInventory inventory) {
+    public GuiCreative(AbstractEntityPlayer player) {
         super(player, 158, 83);
     }
 

@@ -19,8 +19,8 @@ import java.util.List;
  */
 public class ContainerCreative extends ItemContainer{
 
-    public ContainerCreative(AbstractEntityPlayer player, CreativeInventory inventory) {
-        super(player, player.getInv(), inventory);
+    public ContainerCreative(AbstractEntityPlayer player) {
+        super(player, player.getInv(), new CreativeInventory());
         this.addSlotGrid(player.getInv(), 0, 8, 0, -40, 8);
         this.addSlotGrid(this.containedInventories[1], 0, this.containedInventories[1].getSlotAmount(), -60, -15, 14);
     }
