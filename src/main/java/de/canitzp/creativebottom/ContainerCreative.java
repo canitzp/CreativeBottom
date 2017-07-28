@@ -8,6 +8,7 @@ import de.ellpeck.rockbottom.api.inventory.IInventory;
 import de.ellpeck.rockbottom.api.item.Item;
 import de.ellpeck.rockbottom.api.item.ItemInstance;
 import de.ellpeck.rockbottom.api.item.ItemMeta;
+import de.ellpeck.rockbottom.api.util.reg.IResourceName;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -18,10 +19,15 @@ import java.util.List;
  */
 public class ContainerCreative extends ItemContainer{
 
-    public ContainerCreative(AbstractEntityPlayer player) {
-        super(player, player.getInv(), new CreativeInventory());
+    public ContainerCreative(AbstractEntityPlayer player, CreativeInventory inventory) {
+        super(player, player.getInv(), inventory);
         this.addSlotGrid(player.getInv(), 0, 8, 0, -40, 8);
         this.addSlotGrid(this.containedInventories[1], 0, this.containedInventories[1].getSlotAmount(), -60, -15, 14);
+    }
+
+    @Override
+    public IResourceName getName() {
+        return RockBottomAPI.createRes(CreativeBottom.INSTANCE, "creative");
     }
 
     public static class CreativeInventory implements IInventory {

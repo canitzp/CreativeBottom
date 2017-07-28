@@ -52,8 +52,9 @@ public class FontButton extends ComponentButton {
     }
 
     public static void setFont(IGameInstance game, Font font) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-        Field field = Class.forName("de.ellpeck.rockbottom.assets.AssetManager").getDeclaredField("currentFont");
-        field.setAccessible(true);
-        field.set(game.getAssetManager(), font);
+        //Field field = Class.forName("de.ellpeck.rockbottom.assets.AssetManager").getDeclaredField("currentFont");
+        //field.setAccessible(true);
+        //field.set(game.getAssetManager(), font);
+        game.getAssetManager().setFont(font);
     }
 }

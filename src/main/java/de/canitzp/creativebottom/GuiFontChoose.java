@@ -1,11 +1,13 @@
 package de.canitzp.creativebottom;
 
 import de.ellpeck.rockbottom.api.IGameInstance;
+import de.ellpeck.rockbottom.api.RockBottomAPI;
 import de.ellpeck.rockbottom.api.assets.IAssetManager;
 import de.ellpeck.rockbottom.api.assets.font.Font;
 import de.ellpeck.rockbottom.api.gui.Gui;
 import de.ellpeck.rockbottom.api.gui.component.ComponentButton;
 import de.ellpeck.rockbottom.api.gui.component.GuiComponent;
+import de.ellpeck.rockbottom.api.util.reg.IResourceName;
 import org.newdawn.slick.Graphics;
 
 import java.lang.reflect.Field;
@@ -82,5 +84,10 @@ public class GuiFontChoose extends Gui {
             }
         }
         return super.isMouseOverPrioritized(game, component);
+    }
+
+    @Override
+    public IResourceName getName() {
+        return RockBottomAPI.createRes(CreativeBottom.INSTANCE, "font");
     }
 }

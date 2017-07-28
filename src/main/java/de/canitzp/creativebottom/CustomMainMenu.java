@@ -7,6 +7,7 @@ import de.ellpeck.rockbottom.api.assets.font.Font;
 import de.ellpeck.rockbottom.api.gui.Gui;
 import de.ellpeck.rockbottom.api.gui.IGuiManager;
 import de.ellpeck.rockbottom.api.gui.component.ComponentButton;
+import de.ellpeck.rockbottom.api.util.reg.IResourceName;
 import org.newdawn.slick.Graphics;
 
 
@@ -17,13 +18,9 @@ public class CustomMainMenu extends Gui {
 
     private Gui internalMainMenu;
 
-    public CustomMainMenu() {
+    public CustomMainMenu(Gui mainMenu) {
         super(100, 100);
-        try {
-            internalMainMenu = (Gui) Class.forName("de.ellpeck.rockbottom.gui.menu.GuiMainMenu").newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.internalMainMenu = mainMenu;
     }
 
     @Override
@@ -58,6 +55,11 @@ public class CustomMainMenu extends Gui {
     @Override
     public boolean hasGradient(){
         return false;
+    }
+
+    @Override
+    public IResourceName getName() {
+        return RockBottomAPI.createRes(CreativeBottom.INSTANCE, "main_menu_cb");
     }
 
     @Override
