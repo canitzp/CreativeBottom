@@ -11,6 +11,7 @@ import de.ellpeck.rockbottom.api.event.EventResult;
 import de.ellpeck.rockbottom.api.event.IEventHandler;
 import de.ellpeck.rockbottom.api.event.impl.*;
 import de.ellpeck.rockbottom.api.tile.Tile;
+import de.ellpeck.rockbottom.api.world.IWorld;
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Input;
 
@@ -79,25 +80,34 @@ public class Events {
             }
         });
         handler.registerListener(EntityDamageEvent.class, (result, event) -> event.entity instanceof AbstractEntityPlayer && RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) event.entity) && event.entity.getAdditionalData() != null && event.entity.getAdditionalData().getBoolean("is_creative") ? EventResult.CANCELLED : EventResult.DEFAULT);
-        handler.registerListener(WorldRenderEvent.class, (result, event) -> {
-            if (event.world != null && RockBottomAPI.getNet().isThePlayer(event.player)) {
+        handler.registerListener(OverlayRenderEvent.class, (result, event) -> {
+            if (event.player != null && RockBottomAPI.getNet().isThePlayer(event.player)) {
+                IWorld world = event.player.world;
                 DataSet data = event.player.getAdditionalData();
-                if (data != null && data.getBoolean("is_creative")) {
+                if (world != null && data != null && data.getBoolean("is_creative")) {
                     Font font = event.assetManager.getFont();
-                    font.drawString(0.0F, 0.0F, FormattingCode.ORANGE.toString() + "Creative mode (" + CreativeBottom.INSTANCE.getVersion() + ")", 0.0175F);
-                    font.drawString(0.0F, 0.4F, String.format(" Flying:      %s", data.getBoolean("is_flying") ? "ON" : "OFF"), 0.0175F);
-                    font.drawString(0.0F, 0.8F, String.format(" Ghost:       %s", data.getBoolean("pass_trough_world") ? "ON" : "OFF"), 0.0175F);
-                    font.drawString(0.0F, 1.2F, String.format(" Light-Level: %s", data.getBoolean("light_level") ? "SHOWN" : "HIDDEN"), 0.0175F);
-                    if(data.getBoolean("light_level")){
-                        for(int x = -10; x < 10; x++){
-                            int realX = (int)event.player.x + x;
-                            for(int y = -10; y < 10; y++){
-                                int realY = (int)event.player.y + y;
-                                Tile aboveTile = event.world.getState(realX, realY + 1).getTile();
-                                Tile realTile = event.world.getState(realX, realY).getTile();
-                                if((aboveTile == GameContent.TILE_AIR || (!realTile.isFullTile() || realTile.getBoundBox(event.world, realX, realY) == null)) && realTile != GameContent.TILE_AIR){
-                                    font.drawString(realX + 0.175F - event.translationX, -realY - event.translationY, String.valueOf(event.world.getCombinedLight(realX, realY)), 0.02F);
-                                }
+                    font.drawString(0.0F, 00.0F, FormattingCode.ORANGE.toString() + "Creative mode (" + CreativeBottom.INSTANCE.getVersion() + ")", 0.175F);
+                    font.drawString(0.0F, 03.6F, String.format(" Flying:      %s", data.getBoolean("is_flying") ? "ON" : "OFF"), 0.175F);
+                    font.drawString(0.0F, 07.2F, String.format(" Ghost:       %s", data.getBoolean("pass_trough_world") ? "ON" : "OFF"), 0.175F);
+                    font.drawString(0.0F, 10.8F, String.format(" Light-Level: %s", data.getBoolean("light_level") ? "SHOWN" : "HIDDEN"), 0.175F);
+                }
+            }
+            return EventResult.DEFAULT;
+        });
+        handler.registerListener(WorldRenderEvent.class, (result, event) -> {
+            if (event.player != null && RockBottomAPI.getNet().isThePlayer(event.player)) {
+                IWorld world = event.player.world;
+                DataSet data = event.player.getAdditionalData();
+                if (world != null && data != null && data.getBoolean("is_creative") && data.getBoolean("light_level")) {
+                    Font font = event.assetManager.getFont();
+                    for(int x = -10; x < 10; x++){
+                        int realX = (int)event.player.x + x;
+                        for(int y = -10; y < 10; y++){
+                            int realY = (int)event.player.y + y;
+                            Tile aboveTile = world.getState(realX, realY + 1).getTile();
+                            Tile realTile = world.getState(realX, realY).getTile();
+                            if((aboveTile == GameContent.TILE_AIR || (!realTile.isFullTile() || realTile.getBoundBox(world, realX, realY) == null)) && realTile != GameContent.TILE_AIR){
+                                font.drawString(realX + 0.175F - event.translationX, -realY - event.translationY, String.valueOf(world.getCombinedLight(realX, realY)), 0.02F);
                             }
                         }
                     }

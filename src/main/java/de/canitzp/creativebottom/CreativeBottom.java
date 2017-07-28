@@ -37,7 +37,7 @@ public class CreativeBottom implements IMod {
 
     @Override
     public String getVersion() {
-        return "a.6.0";
+        return "a.6.1";
     }
 
     @Override

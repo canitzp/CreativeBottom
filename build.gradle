@@ -1,5 +1,5 @@
 group 'de.canitzp.creativebottom'
-version 'a.6.0'
+version 'a.6.1'
 
 apply plugin: 'java'
 apply plugin: 'idea'
