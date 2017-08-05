@@ -52,20 +52,22 @@ public class CreativeBottom implements IMod {
 
     @Override
     public void preInit(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
-        FONTS.put("Default", game.getAssetManager().getFont());
-        addFont("Old Default", "default");
-        addFont("Vera Mono by Gnome", "VeraMono");
-        addFont("Monospaced Typewriter by Manfred Klein", "MonospaceTypewriter");
-        addFont("Fantasque Sans Mono by belluzj", "FantasqueSansMono-Regular");
+        if(!game.isDedicatedServer()){
+            FONTS.put("Default", game.getAssetManager().getFont());
+            addFont("Old Default", "default");
+            addFont("Vera Mono by Gnome", "VeraMono");
+            addFont("Monospaced Typewriter by Manfred Klein", "MonospaceTypewriter");
+            addFont("Fantasque Sans Mono by belluzj", "FantasqueSansMono-Regular");
 
-        game.getDataManager().loadPropSettings(settings);
-        if(settings.stringsToSave.containsKey("font")){
-            String fontName = settings.stringsToSave.get("font");
-            if(FONTS.containsKey(fontName)){
-                try {
-                    FontButton.setFont(game, FONTS.get(fontName));
-                } catch (Exception e) {
-                    e.printStackTrace();
+            game.getDataManager().loadPropSettings(settings);
+            if(settings.stringsToSave.containsKey("font")){
+                String fontName = settings.stringsToSave.get("font");
+                if(FONTS.containsKey(fontName)){
+                    try {
+                        FontButton.setFont(game, FONTS.get(fontName));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

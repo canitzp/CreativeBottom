@@ -181,6 +181,15 @@ public class Events {
             }
             return EventResult.DEFAULT;
         });
+        handler.registerListener(ResetMovedPlayerEvent.class, (result, event) -> {
+            if(RockBottomAPI.getNet().isThePlayer(event.player)) {
+                DataSet data = event.player.getAdditionalData();
+                if (data != null && data.getBoolean("is_creative") && data.getBoolean("is_flying")) {
+                    return EventResult.CANCELLED;
+                }
+            }
+            return EventResult.DEFAULT;
+        });
     }
 
 }
