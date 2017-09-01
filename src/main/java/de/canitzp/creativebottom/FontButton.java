@@ -16,25 +16,23 @@ public class FontButton extends ComponentButton {
     public Font font;
 
     public FontButton(GuiFontChoose gui, String text, Font font) {
-        super(gui, 0, 0, 0, 0, 10, text);
+        super(gui, 0, 0, 200, 16, null, text);
         this.font = font;
     }
 
-    public void render(IGameInstance game, IAssetManager manager, Graphics g, int x, int y, int width){
+    @Override
+    public void render(IGameInstance game, IAssetManager manager, Graphics g) {
         if(this.hasBackground){
-            this.x = x;
-            this.y = y;
-            this.sizeX = width;
             g.setColor(this.isMouseOverPrioritized(game) ? this.colorButton : this.colorButtonUnselected);
-            g.fillRect(x, y, width, 10);
+            g.fillRect(this.x, this.y, this.sizeX, this.sizeY);
 
             g.setColor(this.colorOutline);
-            g.drawRect(x, y, width, 10);
+            g.drawRect(this.x, this.y, this.sizeX, this.sizeY);
         }
 
         String text = this.getText();
         if(text != null){
-            this.font.drawCenteredString(x + width/2F, y + 10/2F+0.5F, text, 0.35F, true);
+            this.font.drawCenteredString(this.x+this.sizeX/2F, this.y+this.sizeY/2F+0.5F, text, 0.35F, true);
         }
     }
 

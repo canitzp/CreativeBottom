@@ -38,7 +38,7 @@ public class Events {
                         }
 
                         data.addBoolean("is_creative", !before);
-                        entity.fallAmount = 0;
+                        entity.fallStartY = 0;
                         data.addBoolean("is_flying", false);
                         data.addBoolean("pass_trough_world", false);
                         data.addBoolean("light_level", false);
@@ -182,10 +182,21 @@ public class Events {
             return EventResult.DEFAULT;
         });
         handler.registerListener(ResetMovedPlayerEvent.class, (result, event) -> {
-            if(RockBottomAPI.getNet().isThePlayer(event.player)) {
+            if(RockBottomAPI.getNet().isThePlayer(event.player) || RockBottomAPI.getGame().isDedicatedServer()) {
                 DataSet data = event.player.getAdditionalData();
+                System.out.println(data);
                 if (data != null && data.getBoolean("is_creative") && data.getBoolean("is_flying")) {
                     return EventResult.CANCELLED;
+                }
+            }
+            return EventResult.DEFAULT;
+        });
+        handler.registerListener(PlayerLeaveWorldEvent.class, (result, event) -> {
+            if(RockBottomAPI.getNet().isThePlayer(event.player)){
+                DataSet data = event.player.getAdditionalData();
+                if (data != null && data.getBoolean("is_creative")) {
+                    data.addBoolean("light_level", false);
+                    data.addBoolean("pass_trough_world", false);
                 }
             }
             return EventResult.DEFAULT;
