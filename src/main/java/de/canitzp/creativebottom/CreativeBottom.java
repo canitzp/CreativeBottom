@@ -3,9 +3,12 @@ package de.canitzp.creativebottom;
 import de.ellpeck.rockbottom.api.IApiHandler;
 import de.ellpeck.rockbottom.api.IGameInstance;
 import de.ellpeck.rockbottom.api.RockBottomAPI;
-import de.ellpeck.rockbottom.api.assets.font.Font;
+import de.ellpeck.rockbottom.api.assets.font.IFont;
+import de.ellpeck.rockbottom.api.data.settings.Keybind;
 import de.ellpeck.rockbottom.api.event.IEventHandler;
 import de.ellpeck.rockbottom.api.mod.IMod;
+import de.ellpeck.rockbottom.api.util.reg.IResourceName;
+import org.lwjgl.input.Keyboard;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -16,13 +19,18 @@ import java.util.Map;
  */
 public class CreativeBottom implements IMod {
 
-    public static final Map<String, Font> FONTS = new HashMap<>();
-
-    public static CreativeSettings settings = new CreativeSettings();
     public static CreativeBottom INSTANCE;
+
+    public static Keybind creativeState;
+    public static Keybind flyingState;
+    public static Keybind ghostState;
 
     public CreativeBottom(){
         INSTANCE = this;
+
+        creativeState = new Keybind(RockBottomAPI.createRes(this, "change_creative_state_key"), Keyboard.KEY_C, false).register();
+        flyingState = new Keybind(RockBottomAPI.createRes(this, "change_flying_state_key"), Keyboard.KEY_LMENU, false).register();
+        ghostState = new Keybind(RockBottomAPI.createRes(this, "change_ghost_mode_state_key"), Keyboard.KEY_T, false).register();
     }
 
     @Override
@@ -37,12 +45,12 @@ public class CreativeBottom implements IMod {
 
     @Override
     public String getVersion() {
-        return "a.7.0";
+        return "a.8.0";
     }
 
     @Override
     public String getResourceLocation() {
-        return null;
+        return "/assets/creativebottom";
     }
 
     @Override
@@ -51,42 +59,11 @@ public class CreativeBottom implements IMod {
     }
 
     @Override
-    public void preInit(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
-        if(!game.isDedicatedServer()){
-            FONTS.put("Default", game.getAssetManager().getFont());
-            addFont("Old Default", "default");
-            addFont("Vera Mono by Gnome", "VeraMono");
-            addFont("Monospaced Typewriter by Manfred Klein", "MonospaceTypewriter");
-            addFont("Fantasque Sans Mono by belluzj", "FantasqueSansMono-Regular");
-
-            game.getDataManager().loadPropSettings(settings);
-            if(settings.stringsToSave.containsKey("font")){
-                String fontName = settings.stringsToSave.get("font");
-                if(FONTS.containsKey(fontName)){
-                    try {
-                        FontButton.setFont(game, FONTS.get(fontName));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
+    public void preInit(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {}
 
     @Override
     public void init(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
         Events.init(eventHandler);
     }
 
-    private static InputStream loadFont(String name){
-        return RockBottomAPI.getGame().getAssetManager().getResourceStream("/assets/creativebottom/fonts/" + name);
-    }
-
-    private static void addFont(String fontName, String fileName){
-        try {
-            FONTS.put(fontName, Font.fromStream(loadFont(fileName + ".png"), loadFont(fileName + ".info"), fontName));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

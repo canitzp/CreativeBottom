@@ -1,9 +1,10 @@
 package de.canitzp.creativebottom;
 
 import de.ellpeck.rockbottom.api.GameContent;
+import de.ellpeck.rockbottom.api.IInputHandler;
 import de.ellpeck.rockbottom.api.RockBottomAPI;
-import de.ellpeck.rockbottom.api.assets.font.Font;
 import de.ellpeck.rockbottom.api.assets.font.FormattingCode;
+import de.ellpeck.rockbottom.api.assets.font.IFont;
 import de.ellpeck.rockbottom.api.data.set.DataSet;
 import de.ellpeck.rockbottom.api.entity.Entity;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
@@ -12,8 +13,8 @@ import de.ellpeck.rockbottom.api.event.IEventHandler;
 import de.ellpeck.rockbottom.api.event.impl.*;
 import de.ellpeck.rockbottom.api.tile.Tile;
 import de.ellpeck.rockbottom.api.world.IWorld;
+import de.ellpeck.rockbottom.api.world.layer.TileLayer;
 import org.lwjgl.input.Keyboard;
-import org.newdawn.slick.Input;
 
 /**
  * @author canitzp
@@ -26,9 +27,9 @@ public class Events {
             if (entity instanceof AbstractEntityPlayer) {
                 if (RockBottomAPI.getNet().isThePlayer((AbstractEntityPlayer) entity)) {
                     boolean valid = RockBottomAPI.getGame().getGuiManager().getGui() == null;
-                    Input input = RockBottomAPI.getGame().getInput();
+                    IInputHandler input = RockBottomAPI.getGame().getInput();
                     DataSet data;
-                    if (input.isKeyPressed(Keyboard.KEY_C) && valid) {
+                    if (CreativeBottom.creativeState.isPressed() && valid) {
                         boolean before = false;
                         if (entity.getAdditionalData() != null) {
                             data = entity.getAdditionalData();
@@ -36,7 +37,6 @@ public class Events {
                         } else {
                             data = new DataSet();
                         }
-
                         data.addBoolean("is_creative", !before);
                         entity.fallStartY = 0;
                         data.addBoolean("is_flying", false);
@@ -47,13 +47,13 @@ public class Events {
 
                     data = entity.getAdditionalData();
                     if (entity.getAdditionalData() != null && data.getBoolean("is_creative")) {
-                        if (input.isKeyPressed(Keyboard.KEY_LMENU) && valid) {
+                        if (CreativeBottom.flyingState.isPressed() && valid) {
                             data.addBoolean("is_flying", !data.getBoolean("is_flying"));
                             entity.setAdditionalData(data);
-                        } else if (input.isKeyPressed(Keyboard.KEY_T) && valid) {
+                        } else if (CreativeBottom.ghostState.isPressed() && valid) {
                             data.addBoolean("pass_trough_world", !data.getBoolean("pass_trough_world"));
                             entity.setAdditionalData(data);
-                        } else if(input.isKeyPressed(Keyboard.KEY_L) && valid){
+                        } else if(input.isKeyDown(Keyboard.KEY_L) && valid){
                             data.addBoolean("light_level", !data.getBoolean("light_level"));
                             entity.setAdditionalData(data);
                         }
@@ -85,7 +85,7 @@ public class Events {
                 IWorld world = event.player.world;
                 DataSet data = event.player.getAdditionalData();
                 if (world != null && data != null && data.getBoolean("is_creative")) {
-                    Font font = event.assetManager.getFont();
+                    IFont font = event.assetManager.getFont();
                     font.drawString(0.0F, 00.0F, FormattingCode.ORANGE.toString() + "Creative mode (" + CreativeBottom.INSTANCE.getVersion() + ")", 0.175F);
                     font.drawString(0.0F, 03.6F, String.format(" Flying:      %s", data.getBoolean("is_flying") ? "ON" : "OFF"), 0.175F);
                     font.drawString(0.0F, 07.2F, String.format(" Ghost:       %s", data.getBoolean("pass_trough_world") ? "ON" : "OFF"), 0.175F);
@@ -99,14 +99,14 @@ public class Events {
                 IWorld world = event.player.world;
                 DataSet data = event.player.getAdditionalData();
                 if (world != null && data != null && data.getBoolean("is_creative") && data.getBoolean("light_level")) {
-                    Font font = event.assetManager.getFont();
+                    IFont font = event.assetManager.getFont();
                     for(int x = -10; x < 10; x++){
                         int realX = (int)event.player.x + x;
                         for(int y = -10; y < 10; y++){
                             int realY = (int)event.player.y + y;
                             Tile aboveTile = world.getState(realX, realY + 1).getTile();
                             Tile realTile = world.getState(realX, realY).getTile();
-                            if((aboveTile == GameContent.TILE_AIR || (!realTile.isFullTile() || realTile.getBoundBox(world, realX, realY) == null)) && realTile != GameContent.TILE_AIR){
+                            if((aboveTile == GameContent.TILE_AIR || (!realTile.isFullTile() || realTile.getBoundBox(world, realX, realY, TileLayer.MAIN) == null)) && realTile != GameContent.TILE_AIR){
                                 font.drawString(realX + 0.175F - event.translationX, -realY - event.translationY, String.valueOf(world.getCombinedLight(realX, realY)), 0.02F);
                             }
                         }
@@ -134,9 +134,6 @@ public class Events {
                         RockBottomAPI.getGame().getGuiManager().openGui(creative);
                         return EventResult.CANCELLED;
                     }
-                } else if(event.gui.getName().getResourceName().equals("main_menu")){
-                    RockBottomAPI.getGame().getGuiManager().openGui(new CustomMainMenu(event.gui));
-                    return EventResult.CANCELLED;
                 }
             }
             return EventResult.DEFAULT;

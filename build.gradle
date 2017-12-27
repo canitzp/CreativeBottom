@@ -1,5 +1,5 @@
 group 'de.canitzp.creativebottom'
-version 'a.7.0'
+version 'a.8.0'
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -13,10 +13,13 @@ repositories {
     maven {
         url 'https://maven.chaosfield.at'
     }
+    maven {
+        url "http://clojars.org/repo/"
+    }
 }
 
 dependencies {
-    compile group: 'de.ellpeck.rockbottom', name: 'RockBottomAPI', version: '0.0.+'
+    compile group: 'de.ellpeck.rockbottom', name: 'RockBottomAPI', version: '0.1.4-377'
     runtime fileTree("./gamedata")
 }
 

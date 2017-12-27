@@ -60,7 +60,7 @@ public class ContainerCreative extends ItemContainer{
 
         @Override
         public ItemInstance get(int id) {
-            return this.items.size() > id ? add(id, RockBottomAPI.getGame().getInput().isKeyDown(Keyboard.KEY_LSHIFT) ? this.items.get(id).getMaxAmount() : 1) : null;
+            return this.items.size() > id ? add(id, RockBottomAPI.getGame().getInput().isKeyDown(Keyboard.KEY_LCONTROL) ? this.items.get(id).getMaxAmount() : 1) : null;
         }
 
         @Override
@@ -80,6 +80,11 @@ public class ContainerCreative extends ItemContainer{
         @Override
         public void removeChangeCallback(BiConsumer<IInventory, Integer> callback) {
 
+        }
+
+        @Override
+        public ItemInstance addToSlot(int slot, ItemInstance instance, boolean simulate) {
+            return instance;
         }
 
     }
