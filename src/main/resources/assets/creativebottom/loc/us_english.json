@@ -1,0 +1,14 @@
+{
+  "creativebottom": {
+    "key.": {
+      "change_creative_state_key" : "Creative Mode",
+      "change_flying_state_key": "Fly Mode",
+      "change_ghost_mode_state_key": "Ghost Mode",
+      "change_light_level_state_key": "Light level overlay",
+      "control_key": "Multimode (CTRL)",
+      "fly_down_key": "Fly down",
+      "fly_up_key": "Fly up",
+      "middle_mouse_click": "Pick tile"
+    }
+  }
+}

@@ -6,15 +6,21 @@ import de.ellpeck.rockbottom.api.RockBottomAPI;
 import de.ellpeck.rockbottom.api.assets.font.FormattingCode;
 import de.ellpeck.rockbottom.api.assets.font.IFont;
 import de.ellpeck.rockbottom.api.data.set.DataSet;
+import de.ellpeck.rockbottom.api.data.settings.Settings;
 import de.ellpeck.rockbottom.api.entity.Entity;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
 import de.ellpeck.rockbottom.api.event.EventResult;
 import de.ellpeck.rockbottom.api.event.IEventHandler;
 import de.ellpeck.rockbottom.api.event.impl.*;
+import de.ellpeck.rockbottom.api.inventory.Inventory;
+import de.ellpeck.rockbottom.api.item.Item;
+import de.ellpeck.rockbottom.api.item.ItemInstance;
 import de.ellpeck.rockbottom.api.tile.Tile;
+import de.ellpeck.rockbottom.api.util.Util;
 import de.ellpeck.rockbottom.api.world.IWorld;
 import de.ellpeck.rockbottom.api.world.layer.TileLayer;
-import org.lwjgl.input.Keyboard;
+
+import java.util.List;
 
 /**
  * @author canitzp
@@ -53,24 +59,48 @@ public class Events {
                         } else if (CreativeBottom.ghostState.isPressed() && valid) {
                             data.addBoolean("pass_trough_world", !data.getBoolean("pass_trough_world"));
                             entity.setAdditionalData(data);
-                        } else if(input.isKeyDown(Keyboard.KEY_L) && valid){
+                        } else if(CreativeBottom.lightLevelState.isPressed() && valid){
                             data.addBoolean("light_level", !data.getBoolean("light_level"));
                             entity.setAdditionalData(data);
                         }
 
                         if (data.getBoolean("is_flying")) {
                             ((AbstractEntityPlayer) entity).motionY = 0.025D;
-                            if (input.isKeyDown(Keyboard.KEY_W) && valid) {
-                                entity.motionY += !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
-                            } else if (input.isKeyDown(Keyboard.KEY_S) && valid) {
-                                entity.motionY -= !input.isKeyDown(157) && !input.isKeyDown(29) ? 0.2D : 0.4D;
-                            } else if (input.isKeyDown(Keyboard.KEY_LCONTROL) || input.isKeyDown(Keyboard.KEY_RCONTROL) && valid) {
-                                if (input.isKeyDown(Keyboard.KEY_A)) {
-                                    ((AbstractEntityPlayer) entity).move(0);
-                                } else if (input.isKeyDown(Keyboard.KEY_D)) {
-                                    ((AbstractEntityPlayer) entity).move(1);
+                            if (CreativeBottom.upFly.isDown() && valid) {
+                                entity.motionY += !CreativeBottom.controlKey.isDown() ? 0.2D : 0.4D;
+                            } else if (CreativeBottom.downFly.isDown() && valid) {
+                                entity.motionY -= !CreativeBottom.controlKey.isDown() ? 0.2D : 0.4D;
+                            } else if (CreativeBottom.controlKey.isDown() && valid) {
+                                if (Settings.KEY_LEFT.isDown()) {
+                                    ((AbstractEntityPlayer) entity).motionX -= 0.4D;
+                                } else if (Settings.KEY_RIGHT.isDown()) {
+                                    ((AbstractEntityPlayer) entity).motionX += 0.4D;
                                 }
                             }
+                        }
+                        if(valid && CreativeBottom.middleMouse.isPressed()){
+                            for(TileLayer layer : TileLayer.getLayersByInteractionPrio()){
+                                int x = Util.floor(RockBottomAPI.getGame().getRenderer().getMousedTileX());
+                                int y = Util.floor(RockBottomAPI.getGame().getRenderer().getMousedTileY());
+                                Tile tile = ((AbstractEntityPlayer) entity).world.getState(layer, x, y).getTile();
+                                if(tile != null){
+                                    Item item = tile.getItem();
+                                    if(item == null){
+                                        List<ItemInstance> drops = tile.getDrops(((AbstractEntityPlayer) entity).world, x, y, layer, entity);
+                                        if(!drops.isEmpty()){
+                                            item = drops.get(0).getItem();
+                                        }
+                                    }
+                                    if(item != null){
+                                        Inventory inv = ((AbstractEntityPlayer) entity).getInv();
+                                        if(inv.get(((AbstractEntityPlayer) entity).getSelectedSlot()) == null){
+                                            inv.set(((AbstractEntityPlayer) entity).getSelectedSlot(), new ItemInstance(tile, item.getMaxAmount()));
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+
                         }
                     }
                 }

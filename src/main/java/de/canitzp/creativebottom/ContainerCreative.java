@@ -8,7 +8,6 @@ import de.ellpeck.rockbottom.api.item.Item;
 import de.ellpeck.rockbottom.api.item.ItemInstance;
 import de.ellpeck.rockbottom.api.item.ItemMeta;
 import de.ellpeck.rockbottom.api.util.reg.IResourceName;
-import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class ContainerCreative extends ItemContainer{
 
         @Override
         public ItemInstance get(int id) {
-            return this.items.size() > id ? add(id, RockBottomAPI.getGame().getInput().isKeyDown(Keyboard.KEY_LCONTROL) ? this.items.get(id).getMaxAmount() : 1) : null;
+            return this.items.size() > id ? add(id, CreativeBottom.controlKey.isDown() ? this.items.get(id).getMaxAmount() : 1) : null;
         }
 
         @Override
