@@ -1,7 +1,10 @@
 package de.canitzp.creativebottom;
 
+import de.ellpeck.rockbottom.api.GameContent;
 import de.ellpeck.rockbottom.api.RockBottomAPI;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
+import de.ellpeck.rockbottom.api.gui.GuiContainer;
+import de.ellpeck.rockbottom.api.gui.container.ContainerSlot;
 import de.ellpeck.rockbottom.api.gui.container.ItemContainer;
 import de.ellpeck.rockbottom.api.inventory.IInventory;
 import de.ellpeck.rockbottom.api.item.Item;
@@ -19,9 +22,7 @@ import java.util.function.BiConsumer;
 public class ContainerCreative extends ItemContainer{
 
     public ContainerCreative(AbstractEntityPlayer player) {
-        super(player, player.getInv(), new CreativeInventory());
-        this.addSlotGrid(player.getInv(), 0, 8, 0, -40, 8);
-        this.addSlotGrid(this.containedInventories[1], 0, this.containedInventories[1].getSlotAmount(), -60, -15, 14);
+        super(player);
     }
 
     @Override
@@ -45,7 +46,8 @@ public class ContainerCreative extends ItemContainer{
         }
 
         @Override
-        public void set(int id, ItemInstance instance) {}
+        public void set(int id, ItemInstance instance) {
+        }
 
         @Override
         public ItemInstance add(int id, int amount) {
