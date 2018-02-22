@@ -15,5 +15,5 @@ processSources {
 }
 
 dependencies {
-    compile group: 'de.ellpeck.rockbottom', name: 'RockBottomAPI', version: '0.2.15-484'
+    compile group: 'de.ellpeck.rockbottom', name: 'RockBottomAPI', version: '0.2.16-488'
 }
