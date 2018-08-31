@@ -1,19 +1,21 @@
 package de.canitzp.creativebottom;
 
 import de.ellpeck.rockbottom.api.data.set.DataSet;
+import de.ellpeck.rockbottom.api.data.set.ModBasedDataSet;
 import de.ellpeck.rockbottom.api.entity.Entity;
+import de.ellpeck.rockbottom.api.util.reg.ResourceName;
 
 /**
  * @author canitzp
  */
 public class DataCheck {
 
-    public static final String IS_CREATIVE_KEY = "is_creative";
-    public static final String FLY_MODE_KEY = "flight_mode";
-    public static final String LIGHT_LEVEL_KEY = "light_level";
-    public static final String GHOST_MODE_KEY = "ghost_mode";
+    public static final ResourceName IS_CREATIVE_KEY = new ResourceName(CreativeBottom.INSTANCE, "is_creative");
+    public static final ResourceName FLY_MODE_KEY = new ResourceName(CreativeBottom.INSTANCE, "flight_mode");
+    public static final ResourceName LIGHT_LEVEL_KEY = new ResourceName(CreativeBottom.INSTANCE, "light_level");
+    public static final ResourceName GHOST_MODE_KEY = new ResourceName(CreativeBottom.INSTANCE, "ghost_mode");
 
-    private DataSet data;
+    private ModBasedDataSet data;
 
     public DataCheck(Entity entity){
         this.data = entity.getAdditionalData();
@@ -25,7 +27,7 @@ public class DataCheck {
 
     public static DataCheck fromOrCreate(Entity entity){
         if(entity.getAdditionalData() == null){
-            entity.setAdditionalData(new DataSet());
+            entity.setAdditionalData(new ModBasedDataSet());
         }
         return from(entity);
     }
@@ -34,7 +36,7 @@ public class DataCheck {
         return this.data != null;
     }
 
-    public void set(String key, boolean value){
+    public void set(ResourceName key, boolean value){
         if(this.isValid()){
             this.data.addBoolean(key, value);
         }

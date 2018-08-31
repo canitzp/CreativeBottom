@@ -7,6 +7,7 @@ import de.ellpeck.rockbottom.api.RockBottomAPI;
 import de.ellpeck.rockbottom.api.data.settings.Keybind;
 import de.ellpeck.rockbottom.api.event.IEventHandler;
 import de.ellpeck.rockbottom.api.mod.IMod;
+import de.ellpeck.rockbottom.api.util.reg.ResourceName;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -33,14 +34,14 @@ public class CreativeBottom implements IMod {
     public CreativeBottom(){
         INSTANCE = this;
 
-        creativeState = new Keybind(RockBottomAPI.createRes(this, "change_creative_state_key"), GLFW.GLFW_KEY_M, false).register();
-        flyingState = new Keybind(RockBottomAPI.createRes(this, "change_flying_state_key"), GLFW.GLFW_KEY_LEFT_ALT, false).register();
-        ghostState = new Keybind(RockBottomAPI.createRes(this, "change_ghost_mode_state_key"), GLFW.GLFW_KEY_T, false).register();
-        lightLevelState = new Keybind(RockBottomAPI.createRes(this, "change_light_level_state_key"), GLFW.GLFW_KEY_L, false).register();
-        controlKey = new Keybind(RockBottomAPI.createRes(this, "control_key"), GLFW.GLFW_KEY_LEFT_CONTROL, false).register();
-        upFly = new Keybind(RockBottomAPI.createRes(this, "fly_up_key"), GLFW.GLFW_KEY_W, false).register();
-        downFly = new Keybind(RockBottomAPI.createRes(this, "fly_down_key"), GLFW.GLFW_KEY_S, false).register();
-        middleMouse = new Keybind(RockBottomAPI.createRes(this, "middle_mouse_click"), GLFW.GLFW_MOUSE_BUTTON_MIDDLE, true).register();
+        creativeState = new Keybind(new ResourceName(this, "change_creative_state_key"), GLFW.GLFW_KEY_C).register();
+        flyingState = new Keybind(new ResourceName(this, "change_flying_state_key"), GLFW.GLFW_KEY_LEFT_ALT).register();
+        ghostState = new Keybind(new ResourceName(this, "change_ghost_mode_state_key"), GLFW.GLFW_KEY_T).register();
+        lightLevelState = new Keybind(new ResourceName(this, "change_light_level_state_key"), GLFW.GLFW_KEY_L).register();
+        controlKey = new Keybind(new ResourceName(this, "control_key"), GLFW.GLFW_KEY_LEFT_CONTROL).register();
+        upFly = new Keybind(new ResourceName(this, "fly_up_key"), GLFW.GLFW_KEY_W).register();
+        downFly = new Keybind(new ResourceName(this, "fly_down_key"), GLFW.GLFW_KEY_S).register();
+        middleMouse = new Keybind(new ResourceName(this, "middle_mouse_click"), GLFW.GLFW_MOUSE_BUTTON_MIDDLE).register();
     }
 
     @Override
@@ -55,7 +56,7 @@ public class CreativeBottom implements IMod {
 
     @Override
     public String getVersion() {
-        return "poc.10.0";
+        return "a.10.0";
     }
 
     @Override
@@ -67,25 +68,30 @@ public class CreativeBottom implements IMod {
     public String getDescription() {
         return "This mod should provide a simple creative game mode, a bit like the minecraft one for Rock Bottom";
     }
-
+    
+    @Override
+    public boolean isRequiredOnServer(){
+        return true;
+    }
+    
     @Override
     public void preInit(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
 
     }
 
     @Override
-    public void init(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
+    public void postPostInit(IGameInstance game, IApiHandler apiHandler, IEventHandler eventHandler) {
         if(!game.isDedicatedServer()){
             features.add(new FeatureCreativeBottom());
             features.add(new FeatureWorld());
             features.add(new FeaturePlayer());
             features.add(new FeatureRender());
             features.add(new FeatureDisplay());
+            //features.add(new OldInvOverride());
             features.forEach(iFeature -> iFeature.init(game, apiHandler, eventHandler, this));
         } else {
             RockBottomAPI.logger().log(Level.SEVERE, "CreativeBottom can't be used on a dedicated server and disabled itself!");
         }
-
     }
 
 }

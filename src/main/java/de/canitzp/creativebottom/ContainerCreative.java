@@ -1,19 +1,18 @@
 package de.canitzp.creativebottom;
 
-import de.ellpeck.rockbottom.api.GameContent;
-import de.ellpeck.rockbottom.api.RockBottomAPI;
+import de.ellpeck.rockbottom.api.Registries;
+import de.ellpeck.rockbottom.api.construction.resource.IUseInfo;
 import de.ellpeck.rockbottom.api.entity.player.AbstractEntityPlayer;
-import de.ellpeck.rockbottom.api.gui.GuiContainer;
-import de.ellpeck.rockbottom.api.gui.container.ContainerSlot;
 import de.ellpeck.rockbottom.api.gui.container.ItemContainer;
 import de.ellpeck.rockbottom.api.inventory.IInventory;
 import de.ellpeck.rockbottom.api.item.Item;
 import de.ellpeck.rockbottom.api.item.ItemInstance;
 import de.ellpeck.rockbottom.api.item.ItemMeta;
-import de.ellpeck.rockbottom.api.util.reg.IResourceName;
+import de.ellpeck.rockbottom.api.util.reg.ResourceName;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.BiConsumer;
 
 /**
@@ -26,15 +25,15 @@ public class ContainerCreative extends ItemContainer{
     }
 
     @Override
-    public IResourceName getName() {
-        return RockBottomAPI.createRes(CreativeBottom.INSTANCE, "creative");
+    public ResourceName getName() {
+        return new ResourceName(CreativeBottom.INSTANCE, "creative");
     }
 
     public static class CreativeInventory implements IInventory {
         List<ItemInstance> items = new ArrayList<>();
 
         public CreativeInventory(){
-            for(Item item : RockBottomAPI.ITEM_REGISTRY.getUnmodifiable().values()){
+            for(Item item : Registries.ITEM_REGISTRY.getUnmodifiable().values()){
                 if(item instanceof ItemMeta){
                     for(int i = 0; i <= item.getHighestPossibleMeta(); i++){
                         this.items.add(new ItemInstance(item, 1, i));
@@ -61,7 +60,7 @@ public class ContainerCreative extends ItemContainer{
 
         @Override
         public ItemInstance get(int id) {
-            return this.items.size() > id ? add(id, CreativeBottom.controlKey.isDown() ? this.items.get(id).getMaxAmount() : 1) : null;
+            return this.items.size() > id ? add(id, 1) : null;
         }
 
         @Override
@@ -87,6 +86,36 @@ public class ContainerCreative extends ItemContainer{
         public ItemInstance addToSlot(int slot, ItemInstance instance, boolean simulate) {
             return instance;
         }
-
+    
+        @Override
+        public boolean containsResource(IUseInfo info){
+            return false;
+        }
+    
+        @Override
+        public boolean containsItem(ItemInstance inst){
+            return false;
+        }
+    
+        @Override
+        public int getItemIndex(ItemInstance inst){
+            return 0;
+        }
+    
+        @Override
+        public ItemInstance add(ItemInstance instance, boolean simulate){
+            return null;
+        }
+    
+        @Override
+        public ItemInstance addExistingFirst(ItemInstance instance, boolean simulate){
+            return null;
+        }
+    
+        @Override
+        public void fillRandomly(Random random, List<ItemInstance> items){
+        
+        }
+    
     }
 }

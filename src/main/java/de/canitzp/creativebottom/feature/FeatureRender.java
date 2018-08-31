@@ -69,9 +69,9 @@ public class FeatureRender implements IFeature{
                 if (data.isCreative()) {
                     IFont font = event.assetManager.getFont();
                     font.drawString(0.0F, 00.0F, FormattingCode.ORANGE.toString() + "Creative Bottom (" + cb.getVersion() + ")", 0.175F);
-                    font.drawString(0.0F, 03.6F, String.format(" Flying:      %s", data.isFlying() ? "ON" : "OFF"), 0.175F);
-                    font.drawString(0.0F, 07.2F, String.format(" Ghost:       %s", data.isGhost() ? "ON" : "OFF"), 0.175F);
-                    font.drawString(0.0F, 10.8F, String.format(" Light-Level: %s", data.doesShowLightLevel() ? "SHOWN" : "HIDDEN"), 0.175F);
+                    font.drawString(0.0F, 03.6F, String.format(" Flying     (%s): %s", CreativeBottom.flyingState.getDisplayName(), data.isFlying() ? "ON" : "OFF"), 0.175F);
+                    font.drawString(0.0F, 07.2F, String.format(" Ghost      (%s): %s", CreativeBottom.ghostState.getDisplayName(), data.isGhost() ? "ON" : "OFF"), 0.175F);
+                    font.drawString(0.0F, 10.8F, String.format(" Light-Level(%s): %s", CreativeBottom.lightLevelState.getDisplayName(), data.doesShowLightLevel() ? "SHOWN" : "HIDDEN"), 0.175F);
                 }
             }
             return EventResult.DEFAULT;
@@ -83,9 +83,9 @@ public class FeatureRender implements IFeature{
                 if (world != null && DataCheck.from(player).doesShowLightLevel()) {
                     IFont font = event.assetManager.getFont();
                     for(int x = -10; x < 10; x++){
-                        int realX = (int)player.x + x;
+                        int realX = (int)player.getX() + x;
                         for(int y = -10; y < 10; y++){
-                            int realY = (int)player.y + y;
+                            int realY = (int)player.getY() + y;
                             Tile aboveTile = world.getState(realX, realY + 1).getTile();
                             Tile realTile = world.getState(realX, realY).getTile();
                             if((aboveTile == GameContent.TILE_AIR || (!realTile.isFullTile() || realTile.getBoundBox(world, realX, realY, TileLayer.MAIN) == null)) && realTile != GameContent.TILE_AIR){
